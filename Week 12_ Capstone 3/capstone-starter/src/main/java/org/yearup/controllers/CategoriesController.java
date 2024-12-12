@@ -1,5 +1,6 @@
 package org.yearup.controllers;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,12 +63,18 @@ public class CategoriesController {
     }
 
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Category> getById() {
+    @GetMapping("/categories/{id}")
+    public ResponseEntity<Category> getById(@PathVariable int id) {
+        Category category = categoryDao.getById(id);
+        if(category != null){
+            return ResponseEntity.ok(category);
 
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
-//    add the appropriate annotation for a get action
+//    //add the appropriate annotation for a get action
 //    public Category getById(@PathVariable int id)
 //    {
 //        // get the category by id
@@ -76,20 +83,40 @@ public class CategoriesController {
 
     // the url to return all products in category 1 would look like this
     // https://localhost:8080/categories/1/products
-    @GetMapping("{categoryId}/products")
-    public List<Product> getProductsById(@PathVariable int categoryId)
-    {
-        // get a list of product by categoryId
-        return null;
+    @GetMapping("/{categoryId}/products")
+    public ResponseEntity<Integer> getProductsByCategoryId(@PathVariable int categoryId) {
+        // Retrieve the category by ID
+        Category category = categoryDao.getById(categoryId);
+
+        if (category != null) {
+            // Return the list of products associated with the category
+            int products = category.getCategoryId();
+            return ResponseEntity.ok(products);
+        } else {
+            // Return 404 Not Found if the category doesn't exist
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     // add annotation to call this method for a POST action
     // add annotation to ensure that only an ADMIN can call this function
-    public Category addCategory(@RequestBody Category category)
-    {
-        // insert the category
-        return null;
+    @PostMapping("/category")
+    public ResponseEntity<String> addCategory(@RequestBody Category category) {
+        try {
+            // Use the DAO to create the category
+            Category createdCategory = categoryDao.create(category);
+
+            if (createdCategory != null) {
+                return ResponseEntity.status(HttpStatus.CREATED).body("Category added successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add category");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
     }
+
+
 
     // add annotation to call this method for a PUT (update) action - the url path must include the categoryId
     // add annotation to ensure that only an ADMIN can call this function
