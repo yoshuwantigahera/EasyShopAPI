@@ -29,7 +29,12 @@ public class Product
         this.stock = stock;
         this.isFeatured = isFeatured;
         this.imageUrl = imageUrl;
+
+
     }
+
+
+
 
     public int getProductId()
     {

@@ -1,5 +1,7 @@
 package org.yearup.models;
 
+import java.util.List;
+
 public class Category
 {
     private int categoryId;
@@ -45,5 +47,9 @@ public class Category
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public List<Product> getProductsByCategoryId() {
+        return getProductsByCategoryId();
     }
 }

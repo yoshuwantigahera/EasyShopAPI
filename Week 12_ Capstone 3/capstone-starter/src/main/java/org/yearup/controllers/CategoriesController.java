@@ -63,16 +63,21 @@ public class CategoriesController {
     }
 
 
-    @GetMapping("/categories/{id}")
-    public ResponseEntity<Category> getById(@PathVariable int id) {
-        Category category = categoryDao.getById(id);
-        if(category != null){
-            return ResponseEntity.ok(category);
+//    public Category getCategoryById(int id){
+//
+//     return categoryDao.getCategoriesById(id);
+//    }
 
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
+//    @GetMapping("/categories/{id}")
+//    public ResponseEntity<Category> getById(@PathVariable int id) {
+//        Category category = categoryDao.getById(id);
+//        if(category != null){
+//            return ResponseEntity.ok(category);
+//
+//        }else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//        }
+//    }
 
 //    //add the appropriate annotation for a get action
 //    public Category getById(@PathVariable int id)
@@ -84,19 +89,20 @@ public class CategoriesController {
     // the url to return all products in category 1 would look like this
     // https://localhost:8080/categories/1/products
     @GetMapping("/{categoryId}/products")
-    public ResponseEntity<Integer> getProductsByCategoryId(@PathVariable int categoryId) {
+    public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int categoryId) {
         // Retrieve the category by ID
         Category category = categoryDao.getById(categoryId);
 
         if (category != null) {
-            // Return the list of products associated with the category
-            int products = category.getCategoryId();
+            // Retrieve the list of products from the ProductDao using categoryId
+            List<Product> products = productDao.getProductsByCategoryId(categoryId);
             return ResponseEntity.ok(products);
         } else {
             // Return 404 Not Found if the category doesn't exist
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
 
     // add annotation to call this method for a POST action
     // add annotation to ensure that only an ADMIN can call this function
