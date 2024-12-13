@@ -49,7 +49,4 @@ public class Category
         this.description = description;
     }
 
-    public List<Product> getProductsByCategoryId() {
-        return getProductsByCategoryId();
-    }
 }

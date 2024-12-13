@@ -58,7 +58,6 @@ public class CategoriesController {
     // GET method to retrieve all categories
     @GetMapping
     public List<Category> getAll() {
-
         return categoryDao.getAllCategories();
     }
 
@@ -81,8 +80,8 @@ public class CategoriesController {
 //        return null;
 //    }
 
-    // the url to return all products in category 1 would look like this
-    // https://localhost:8080/categories/1/products
+//     the url to return all products in category 1 would look like this
+//     https://localhost:8080/categories/1/products
     @GetMapping("/{categoryId}/products")
     public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int categoryId) {
         // Retrieve the category by ID
