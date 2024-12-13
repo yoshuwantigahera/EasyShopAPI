@@ -62,22 +62,17 @@ public class CategoriesController {
         return categoryDao.getAllCategories();
     }
 
+     //add the appropriate annotation for a get action
+    @GetMapping("{id}")
+    public ResponseEntity<Category> getById(@PathVariable int id) {
+        Category category = categoryDao.getById(id);
+        if(category != null){
+            return ResponseEntity.ok(category);
 
-//    public Category getCategoryById(int id){
-//
-//     return categoryDao.getCategoriesById(id);
-//    }
-
-//    @GetMapping("/categories/{id}")
-//    public ResponseEntity<Category> getById(@PathVariable int id) {
-//        Category category = categoryDao.getById(id);
-//        if(category != null){
-//            return ResponseEntity.ok(category);
-//
-//        }else {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
-//    }
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 
 //    //add the appropriate annotation for a get action
 //    public Category getById(@PathVariable int id)
@@ -95,7 +90,7 @@ public class CategoriesController {
 
         if (category != null) {
             // Retrieve the list of products from the ProductDao using categoryId
-            List<Product> products = productDao.getProductsByCategoryId(categoryId);
+            List<Product> products = productDao.listByCategoryId(categoryId);
             return ResponseEntity.ok(products);
         } else {
             // Return 404 Not Found if the category doesn't exist
@@ -106,7 +101,8 @@ public class CategoriesController {
 
     // add annotation to call this method for a POST action
     // add annotation to ensure that only an ADMIN can call this function
-    @PostMapping("/category")
+    @PostMapping("")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> addCategory(@RequestBody Category category) {
         try {
             // Use the DAO to create the category
