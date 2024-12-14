@@ -62,9 +62,9 @@ public class CategoriesController {
     }
 
      //add the appropriate annotation for a get action
-    @GetMapping("{id}")
-    public ResponseEntity<Category> getById(@PathVariable int id) {
-        Category category = categoryDao.getById(id);
+    @GetMapping("{categoryID}")
+    public ResponseEntity<Category> getById(@PathVariable int categoryID) {
+        Category category = categoryDao.getById(categoryID);
         if(category != null){
             return ResponseEntity.ok(category);
 
@@ -73,29 +73,40 @@ public class CategoriesController {
         }
     }
 
-//    //add the appropriate annotation for a get action
-//    public Category getById(@PathVariable int id)
-//    {
-//        // get the category by id
-//        return null;
-//    }
 
 //     the url to return all products in category 1 would look like this
 //     https://localhost:8080/categories/1/products
-    @GetMapping("/{categoryId}/products")
-    public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int categoryId) {
-        // Retrieve the category by ID
-        Category category = categoryDao.getById(categoryId);
+//@GetMapping("/{categoryId}/products")
+//public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int categoryId) {
+//    Category category = categoryDao.getById(categoryId);
+//
+//    if (category == null) {
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//    }
+//
+//    List<Product> products = productDao.listByCategoryId(categoryId);
+//
+//    if (products.isEmpty()) {
+//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+//    }
+//
+//    return ResponseEntity.ok(products);
+//}
 
-        if (category != null) {
-            // Retrieve the list of products from the ProductDao using categoryId
-            List<Product> products = productDao.listByCategoryId(categoryId);
-            return ResponseEntity.ok(products);
-        } else {
-            // Return 404 Not Found if the category doesn't exist
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
+//    @GetMapping("/{categoryId}/products")
+//    public ResponseEntity<List<Product>> listByCategoryId(@PathVariable int categoryId) {
+//        // Retrieve the category by ID
+//        Category category = categoryDao.getById(categoryId);
+//
+//        if (category != null) {
+//            // Retrieve the list of products from the ProductDao using categoryId
+//            List<Product> products = productDao.listByCategoryId(categoryId);
+//            return ResponseEntity.ok(products);
+//        } else {
+//            // Return 404 Not Found if the category doesn't exist
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//        }
+//    }
 
 
     // add annotation to call this method for a POST action
