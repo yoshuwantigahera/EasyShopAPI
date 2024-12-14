@@ -76,15 +76,29 @@ public class CategoriesController {
 
 //     the url to return all products in category 1 would look like this
 //     https://localhost:8080/categories/1/products
+@GetMapping("/{categoryId}/products")
+public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int categoryId) {
+    // Retrieve products by categoryId
+    List<Product> products = productDao.listByCategoryId(categoryId);
+
+    if (products == null || products.isEmpty()) {
+        // Return 404 if no products found for the category
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    // Return the list of products with 200 OK
+    return ResponseEntity.ok(products);
+}
+
 //@GetMapping("/{categoryId}/products")
-//public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int categoryId) {
-//    Category category = categoryDao.getById(categoryId);
+//public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int productID) {
+//    Product product = productDao.getById(productID);
 //
-//    if (category == null) {
+//    if (product == null) {
 //        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 //    }
 //
-//    List<Product> products = productDao.listByCategoryId(categoryId);
+//    List<Product> products = productDao.listByCategoryId(productID);
 //
 //    if (products.isEmpty()) {
 //        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -111,23 +125,23 @@ public class CategoriesController {
 
     // add annotation to call this method for a POST action
     // add annotation to ensure that only an ADMIN can call this function
-    @PostMapping("")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> addCategory(@RequestBody Category category) {
-        try {
-            // Use the DAO to create the category
-            Category createdCategory = categoryDao.create(category);
-
-            if (createdCategory != null) {
-                return ResponseEntity.status(HttpStatus.CREATED).body("Category added successfully");
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add category");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
-        }
-    }
-
+//    @PostMapping("")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    public ResponseEntity<String> addCategory(@RequestBody Category category) {
+//        try {
+//            // Use the DAO to create the category
+//            Category createdCategory = categoryDao.create(category);
+//
+//            if (createdCategory != null) {
+//                return ResponseEntity.status(HttpStatus.CREATED).body("Category added successfully");
+//            } else {
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add category");
+//            }
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+//        }
+//    }
+//
 
 
     // add annotation to call this method for a PUT (update) action - the url path must include the categoryId
