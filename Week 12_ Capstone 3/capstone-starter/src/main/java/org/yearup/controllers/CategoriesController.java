@@ -1,5 +1,6 @@
 package org.yearup.controllers;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -90,45 +91,45 @@ public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int c
     return ResponseEntity.ok(products);
 }
 
-//@GetMapping("/{categoryId}/products")
-//public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int productID) {
-//    Product product = productDao.getById(productID);
-//
-//    if (product == null) {
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//    }
-//
-//    List<Product> products = productDao.listByCategoryId(productID);
-//
-//    if (products.isEmpty()) {
-//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//    }
-//
-//    return ResponseEntity.ok(products);
-//}
+    @PostMapping("")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> addCategory(@RequestBody Category category) {
+        try {
+            // Validate the input (basic example)
+            if (category == null || category.getName() == null || category.getName().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category name is required.");
+            }
 
-//    @GetMapping("/{categoryId}/products")
-//    public ResponseEntity<List<Product>> listByCategoryId(@PathVariable int categoryId) {
-//        // Retrieve the category by ID
-//        Category category = categoryDao.getById(categoryId);
-//
-//        if (category != null) {
-//            // Retrieve the list of products from the ProductDao using categoryId
-//            List<Product> products = productDao.listByCategoryId(categoryId);
-//            return ResponseEntity.ok(products);
-//        } else {
-//            // Return 404 Not Found if the category doesn't exist
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
-//    }
+            // Use the DAO to create the category
+            Category createdCategory = categoryDao.create(category);
+
+            if (createdCategory != null) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add category");
+            }
+        } catch (IllegalArgumentException e) {
+            // Handle specific validation or argument errors
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid category details: " + e.getMessage());
+        } catch (DataAccessException e) {
+            // Handle database-related errors (e.g., using Spring's DataAccessException)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Database error: " + e.getMessage());
+        } catch (Exception e) {
+            // Catch any other unexpected errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }
 
 
-    // add annotation to call this method for a POST action
-    // add annotation to ensure that only an ADMIN can call this function
+
+//    // add annotation to call this method for a POST action
+//    // add annotation to ensure that only an ADMIN can call this function
 //    @PostMapping("")
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
 //    public ResponseEntity<String> addCategory(@RequestBody Category category) {
 //        try {
+//            if (category == null || category.getName() == null || category.getName().isEmpty()) {
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category name is required.");
 //            // Use the DAO to create the category
 //            Category createdCategory = categoryDao.create(category);
 //
@@ -141,21 +142,49 @@ public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int c
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
 //        }
 //    }
-//
+
 
 
     // add annotation to call this method for a PUT (update) action - the url path must include the categoryId
     // add annotation to ensure that only an ADMIN can call this function
-    public void updateCategory(@PathVariable int id, @RequestBody Category category)
-    {
-        // update the category by id
-    }
+        @PutMapping("/{id}")
+        @PreAuthorize("hasRole('ROLE_ADMIN')")
+        public ResponseEntity<?> updateCategory(@RequestBody Category category) {
+            try {
+                int categoryId = category.getCategoryId(); // Assuming the Category object has a getId() method to get the ID.
+                categoryDao.update(categoryId, category); // Update the category with its ID and the new data.
+
+                return ResponseEntity.ok("Category updated successfully");
+            } catch (Exception e) {
+                // Log the exception (optional, depending on your logging setup)
+                // logger.error("Error updating category", e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the category");
+            }
+        }
+
+
 
 
     // add annotation to call this method for a DELETE action - the url path must include the categoryId
     // add annotation to ensure that only an ADMIN can call this function
-    public void deleteCategory(@PathVariable int id)
-    {
-        // delete the category by id
+    @DeleteMapping("/categories/{categoryId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> deleteCategory(@PathVariable int categoryId) {
+        try {
+            Category existingCategory = categoryDao.getById(categoryId); // Check if the category exists
+
+            if (existingCategory == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category not found");
+            }
+
+            categoryDao.delete(categoryId);  // Delete the category if it exists
+            return ResponseEntity.ok("Category deleted successfully");
+        } catch (Exception e) {
+            // Log the exception (optional)
+            // logger.error("Error deleting category", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the category");
+        }
     }
+
+
 }
