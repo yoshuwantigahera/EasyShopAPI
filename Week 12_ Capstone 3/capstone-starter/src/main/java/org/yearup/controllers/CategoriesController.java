@@ -1,7 +1,5 @@
 package org.yearup.controllers;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,32 +10,12 @@ import org.yearup.models.Product;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import org.yearup.models.Profile;
-import org.yearup.data.ProfileDao;
-import org.yearup.data.UserDao;
-import org.yearup.models.authentication.LoginDto;
-import org.yearup.models.authentication.LoginResponseDto;
-import org.yearup.models.authentication.RegisterUserDto;
-import org.yearup.models.User;
-import org.yearup.security.jwt.JWTFilter;
-import org.yearup.security.jwt.TokenProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -74,7 +52,7 @@ public class CategoriesController {
         }
     }
 
-
+//Green
 //     the url to return all products in category 1 would look like this
 //     https://localhost:8080/categories/1/products
 @GetMapping("/{categoryId}/products")
@@ -93,32 +71,40 @@ public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int c
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> addCategory(@RequestBody Category category) {
-        try {
-            // Validate the input (basic example)
-            if (category == null || category.getName() == null || category.getName().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category name is required.");
-            }
-
+    public Category addCategory(@RequestBody Category category) {
             // Use the DAO to create the category
-            Category createdCategory = categoryDao.create(category);
-
-            if (createdCategory != null) {
-                return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add category");
-            }
-        } catch (IllegalArgumentException e) {
-            // Handle specific validation or argument errors
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid category details: " + e.getMessage());
-        } catch (DataAccessException e) {
-            // Handle database-related errors (e.g., using Spring's DataAccessException)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Database error: " + e.getMessage());
-        } catch (Exception e) {
-            // Catch any other unexpected errors
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+             category = categoryDao.create(category);
+             return category;
         }
-    }
+
+//    @PostMapping("")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    public ResponseEntity<?> addCategory(@RequestBody Category category) {
+//        try {
+//            // Validate the input (basic example)
+//            if (category == null || category.getName() == null || category.getName().isEmpty()) {
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category name is required.");
+//            }
+//
+//            // Use the DAO to create the category
+//            Category createdCategory = categoryDao.create(category);
+//
+//            if (createdCategory != null) {
+//                return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
+//            } else {
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add category");
+//            }
+//        } catch (IllegalArgumentException e) {
+//            // Handle specific validation or argument errors
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid category details: " + e.getMessage());
+//        } catch (DataAccessException e) {
+//            // Handle database-related errors (e.g., using Spring's DataAccessException)
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Database error: " + e.getMessage());
+//        } catch (Exception e) {
+//            // Catch any other unexpected errors
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+//        }
+//    }
 
 
 
@@ -186,5 +172,4 @@ public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int c
         }
     }
 
-
-}
+        }
