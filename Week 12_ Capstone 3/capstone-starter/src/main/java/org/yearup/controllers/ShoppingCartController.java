@@ -1,13 +1,16 @@
 package org.yearup.controllers;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.ProductDao;
 import org.yearup.data.ShoppingCartDao;
 import org.yearup.data.UserDao;
+import org.yearup.models.Product;
 import org.yearup.models.ShoppingCart;
+import org.yearup.models.ShoppingCartItem;
 import org.yearup.models.User;
 
 import java.security.Principal;
@@ -59,14 +62,75 @@ public class ShoppingCartController
 
     // add a POST method to add a product to the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be added
+    @PostMapping("/cart/products/{productId}")
+    public ResponseEntity<?> addProductToCart(@PathVariable int productId, Principal principal) {
+        try {
+            // Get the currently logged-in username
+            String userName = principal.getName();
+
+            // Find the user in the database by username
+            User user = userDao.getByUserName(userName);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
+            int userId = user.getId();
+
+            // Verify that the product exists
+            Product product = productDao.getById(productId); // Assumes a method in productDao to get a product by ID
+            if (product == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+            }
+
+            // Add the product to the user's cart
+            shoppingCartDao.addProductToCart(userId, productId);
+
+            return ResponseEntity.ok("Product added to cart successfully");
+        } catch (Exception e) {
+            // Log the exception (optional)
+            // logger.error("Error adding product to cart", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while adding the product to the cart");
+        }
+    }
+
 
 
     // add a PUT method to update an existing product in the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be updated)
     // the BODY should be a ShoppingCartItem - quantity is the only value that will be updated
+    @PutMapping("/cart/products/{productId}")
+    public ResponseEntity<?> updateProductInCart(@PathVariable int productId, @RequestBody ShoppingCartItem updatedItem, Principal principal) {
+        try {
+            // Get  currently loggedin username
+            String userName = principal.getName();
+
+            // Find the user in the database by username
+            User user = userDao.getByUserName(userName);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
+            int userId = user.getId();
+
+            // to verify  the product exists in the user's cart
+            ShoppingCartItem existingItem = shoppingCartDao.getCartItemByUserIdAndProductId(userId, productId);
+            if (existingItem == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found in cart");
+            }
+
+            //  to update the quantity of the product in the cart
+            shoppingCartDao.updateProductQuantity(userId, productId, updatedItem.getQuantity());
+
+            return ResponseEntity.ok("Product quantity updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the product in the cart");
+        }
+    }
+
 
 
     // add a DELETE method to clear all products from the current users cart
     // https://localhost:8080/cart
+
 
 }
