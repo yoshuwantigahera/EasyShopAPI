@@ -11,53 +11,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class MySqlProductDao extends MySqlDaoBase implements ProductDao
-{
-    public MySqlProductDao(DataSource dataSource)
-    {
+public class MySqlProductDao extends MySqlDaoBase implements ProductDao {
+    public MySqlProductDao(DataSource dataSource) {
         super(dataSource);
     }
 
     @Override
-    public List<Product> search(Integer categoryId, BigDecimal minPrice, BigDecimal maxPrice, String color)
-    {
+    public List<Product> search(Integer categoryId, BigDecimal minPrice, BigDecimal maxPrice, String color) {
         List<Product> products = new ArrayList<>();
 
-        String sql = "SELECT * FROM products " +
-                "WHERE (category_id = ? OR ? = -1) " +
-                "   AND (price <= ? OR ? = -1) " +
-                "   AND (color = ? OR ? = '') ";
+        StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE 1=1");
 
-        categoryId = categoryId == null ? -1 : categoryId;
-        minPrice = minPrice == null ? new BigDecimal("-1") : minPrice;
-        maxPrice = maxPrice == null ? new BigDecimal("-1") : maxPrice;
-        color = color == null ? "" : color;
+        if (categoryId != null) sql.append(" AND category_id = ?");
+        if (minPrice != null) sql.append(" AND price >= ?");
+        if (maxPrice != null) sql.append(" AND price <= ?");
+        if (color != null && !color.isEmpty()) sql.append(" AND color = ?");
 
-        try (Connection connection = getConnection())
-        {
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, categoryId);
-            statement.setInt(2, categoryId);
-            statement.setBigDecimal(3, minPrice);
-            statement.setBigDecimal(4, minPrice);
-            statement.setString(5, color);
-            statement.setString(6, color);
+        try (Connection connection = getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sql.toString());
+
+            int index = 1;
+            if (categoryId != null) statement.setInt(index++, categoryId);
+            if (minPrice != null) statement.setBigDecimal(index++, minPrice);
+            if (maxPrice != null) statement.setBigDecimal(index++, maxPrice);
+            if (color != null && !color.isEmpty()) statement.setString(index++, color);
 
             ResultSet row = statement.executeQuery();
 
-            while (row.next())
-            {
+            while (row.next()) {
                 Product product = mapRow(row);
                 products.add(product);
             }
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            System.out.println("Error occured");
         }
 
         return products;
     }
+
 
     @Override
     public List<Product> listByCategoryId(int categoryId)
@@ -154,22 +145,19 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
     }
 
     @Override
-    public void update(int productId, Product product)
-    {
-        String sql = "UPDATE products" +
-                " SET name = ? " +
-                "   , price = ? " +
-                "   , category_id = ? " +
-                "   , description = ? " +
-                "   , color = ? " +
-                "   , image_url = ? " +
-                "   , stock = ? " +
-                "   , featured = ? " +
-                " WHERE product_id = ?;";
+    public void update(int productId, Product product) {
+        String sql = "UPDATE products " +
+                "SET name = ?, price = ?, category_id = ?, description = ?, color = ?, " +
+                "    image_url = ?, stock = ?, featured = ? " +
+                "WHERE product_id = ?;";
 
-        try (Connection connection = getConnection())
-        {
+        try (Connection connection = getConnection()) {
             PreparedStatement statement = connection.prepareStatement(sql);
+
+            if (product.getName() == null || product.getPrice() == null) {
+                throw new IllegalArgumentException("Product name and price cannot be null.");
+            }
+
             statement.setString(1, product.getName());
             statement.setBigDecimal(2, product.getPrice());
             statement.setInt(3, product.getCategoryId());
@@ -180,13 +168,50 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
             statement.setBoolean(8, product.isFeatured());
             statement.setInt(9, productId);
 
-            statement.executeUpdate();
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new RuntimeException("Product with ID " + productId + " not found or not updated.");
+            }
+
+            System.out.println("Updated product with ID: " + productId);
+        } catch (SQLException e) {
+            System.out.println("Error updating product with ID " + productId);
         }
     }
+
+//    public void update(int productId, Product product)
+//    {
+//        String sql = "UPDATE products" +
+//                " SET name = ? " +
+//                "   , price = ? " +
+//                "   , category_id = ? " +
+//                "   , description = ? " +
+//                "   , color = ? " +
+//                "   , image_url = ? " +
+//                "   , stock = ? " +
+//                "   , featured = ? " +
+//                " WHERE product_id = ?;";
+//
+//        try (Connection connection = getConnection())
+//        {
+//            PreparedStatement statement = connection.prepareStatement(sql);
+//            statement.setString(1, product.getName());
+//            statement.setBigDecimal(2, product.getPrice());
+//            statement.setInt(3, product.getCategoryId());
+//            statement.setString(4, product.getDescription());
+//            statement.setString(5, product.getColor());
+//            statement.setString(6, product.getImageUrl());
+//            statement.setInt(7, product.getStock());
+//            statement.setBoolean(8, product.isFeatured());
+//            statement.setInt(9, productId);
+//
+//            statement.executeUpdate();
+//        }
+//        catch (SQLException e)
+//        {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     @Override
     public void delete(int productId)

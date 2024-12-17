@@ -32,6 +32,9 @@ public class ProductsController
                                 @RequestParam(name="color", required = false) String color
                                 )
     {
+        if (minPrice != null && maxPrice != null && minPrice.compareTo(maxPrice) > 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Minimum price cannot be greater than maximum price.");
+        }
         try
         {
             return productDao.search(categoryId, minPrice, maxPrice, color);
