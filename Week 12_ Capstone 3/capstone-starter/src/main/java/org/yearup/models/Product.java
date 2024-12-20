@@ -33,7 +33,8 @@ public class Product
 
     }
 
-
+    public Product(int productId, String name, double price) {
+    }
 
 
     public int getProductId()

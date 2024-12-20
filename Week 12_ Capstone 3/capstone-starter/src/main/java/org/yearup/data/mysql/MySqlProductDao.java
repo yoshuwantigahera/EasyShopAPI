@@ -3,6 +3,7 @@ package org.yearup.data.mysql;
 import org.springframework.stereotype.Component;
 import org.yearup.models.Product;
 import org.yearup.data.ProductDao;
+import org.yearup.models.ShoppingCart;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
@@ -14,6 +15,16 @@ import java.util.List;
 public class MySqlProductDao extends MySqlDaoBase implements ProductDao {
     public MySqlProductDao(DataSource dataSource) {
         super(dataSource);
+    }
+
+    @Override
+    public ShoppingCart addingItems(int userId, int productId) {
+        return null;
+    }
+
+    @Override
+    public void deleteCart(int userId) {
+
     }
 
     @Override
@@ -179,39 +190,6 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao {
         }
     }
 
-//    public void update(int productId, Product product)
-//    {
-//        String sql = "UPDATE products" +
-//                " SET name = ? " +
-//                "   , price = ? " +
-//                "   , category_id = ? " +
-//                "   , description = ? " +
-//                "   , color = ? " +
-//                "   , image_url = ? " +
-//                "   , stock = ? " +
-//                "   , featured = ? " +
-//                " WHERE product_id = ?;";
-//
-//        try (Connection connection = getConnection())
-//        {
-//            PreparedStatement statement = connection.prepareStatement(sql);
-//            statement.setString(1, product.getName());
-//            statement.setBigDecimal(2, product.getPrice());
-//            statement.setInt(3, product.getCategoryId());
-//            statement.setString(4, product.getDescription());
-//            statement.setString(5, product.getColor());
-//            statement.setString(6, product.getImageUrl());
-//            statement.setInt(7, product.getStock());
-//            statement.setBoolean(8, product.isFeatured());
-//            statement.setInt(9, productId);
-//
-//            statement.executeUpdate();
-//        }
-//        catch (SQLException e)
-//        {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
     @Override
     public void delete(int productId)

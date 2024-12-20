@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.yearup.data.CategoryDao;
 import org.yearup.models.Category;
+import org.yearup.models.ShoppingCart;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -25,6 +26,16 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
     }
 
     @Override
+    public ShoppingCart addingItems(int userId, int productId) {
+        return null;
+    }
+
+    @Override
+    public void deleteCart(int userId) {
+
+    }
+
+    @Override
     public List<Category> getAllCategories() {
         String sql = "SELECT * FROM categories"; // Adjust table name as per your database schema
         List<Category> categories = new ArrayList<>();
@@ -37,7 +48,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                 Category category = new Category();
                 category.setCategoryId(resultSet.getInt("category_id")); // Replace "id" with the actual column name
                 category.setName(resultSet.getString("name")); // Replace "name" with the actual column name
-                // Map other columns if necessary
+
                 categories.add(category);
             }
 
@@ -72,7 +83,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                 throw new RuntimeException("Failed to insert category");
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Handle exceptions appropriately
+            e.printStackTrace(); // Handle exceptions
             throw new RuntimeException("Error creating category", e);
         }
 
@@ -93,16 +104,16 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                     Category category = new Category();
                     category.setCategoryId(resultSet.getInt("category_id")); // Replace with actual column name
                     category.setName(resultSet.getString("name"));          // Replace with actual column name
-                    category.setDescription(resultSet.getString("description")); // Replace as needed
+                    category.setDescription(resultSet.getString("description"));
                     return category;
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Handle exceptions appropriately
+            e.printStackTrace();
             throw new RuntimeException("Error fetching category by ID", e);
         }
 
-        return null; // Return null if no category is found
+        return null;
     }
 
     @Override
@@ -118,7 +129,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); // Handle exceptions appropriately
+            e.printStackTrace();
             throw new RuntimeException("Error updating category", e);
         }
     }
@@ -134,7 +145,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); // Handle exceptions appropriately
+            e.printStackTrace();
             throw new RuntimeException("Error deleting category", e);
         }
     }
